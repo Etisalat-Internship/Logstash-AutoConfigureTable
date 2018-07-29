@@ -28,7 +28,7 @@ filter {
 
 
 ## Steps
-1. choose a code version by fetching the branch with your version number
+1. choose a code version by fetching the branch with your version number (default/master branch is set to Python 3.6)
 2. open bash
 3. go to the cloned folder's directory
 4. run code:
