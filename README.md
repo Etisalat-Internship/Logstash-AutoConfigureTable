@@ -20,6 +20,9 @@ filter {
 }
 ```
 
+>Tip: `bcancer.csv` and `2 - Second Pipeline.conf` files are merely provided to serve as templates or for testing, they carry no particular significance for the code to run.
+
+
 5. python 2.7 or python 3.6 (or higher) needs to be installed
 6. install the correct version of the code for your python version of choice
 
@@ -35,4 +38,4 @@ filter {
 5. when prompted to enter file names, do so with their file extensions
 
 ## Result
->After running the code, the output file (specifically, the filter's csv's collum variable) will be pupulated by an array of strings including the column names
+>After running the code, the output file (specifically, the filter's csv's collum variable) will be pupulated by an array of strings including the column names.
