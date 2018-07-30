@@ -1,6 +1,7 @@
 import re
 import os
 
+# configuration file template
 conf_temp= '''
 input {
     beats {
@@ -30,6 +31,22 @@ output {
 }
 '''
 
+# function to check if string's vlaue can be float
+def isfloat(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+# function to return the required type
+def getType(s):
+    if isfloat(s):
+        return "float"
+    return "text"
+
+def writeConversion(dictionary):
+    return ['convert => {"[' + key + ']" => "' + dictionary[key] + '"}\n' for key in dictionary]
+
 # get names of files in python 3.6
 data_file_name = input("Data File Name: ")
 conf_file_name = input("Configurations File Name: ")
@@ -49,6 +66,9 @@ with open(data_file_name, "r") as in_data:
 if in_data.mode == 'r':
     table_column_titles_array = re.sub("[\n\r]", "",file_lines[0]).split(',')
     data_sample =  re.sub("[\n\r]", "",file_lines[1]).split(',')
+
+
+print(''.join(writeConversion(dict(zip(table_column_titles_array, map(getType, data_sample))))))
 
 # write to output file
 print((re.sub("index =>.*", 'index => "' + db_name + '"'
