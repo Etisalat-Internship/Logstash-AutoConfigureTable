@@ -14,8 +14,8 @@ filter {
         #match => ...etc...
     }
     csv {
-        columns:
-        seperator: ","
+        columns =>
+        seperator => ","
     }
 }
 ```
