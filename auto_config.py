@@ -15,12 +15,7 @@ filter {
 	    separator => ","
 	}
 	
-	mutate{
-		convert => {"[sepal length]" => "float"}
-		convert => {"[sepal width]" => "float"}
-		convert => {"[petal length]" => "float"}
-		convert => {"[petal width]" => "float"}
-	}
+	#mutate
 }
 output {
 	stdout { codec => rubydebug }
@@ -45,18 +40,18 @@ def getType(s):
     return "text"
 
 def writeConversion(dictionary):
-    return ['convert => {"[' + key + ']" => "' + dictionary[key] + '"}\n' for key in dictionary]
+    return ['\t\tconvert => {"[' + key + ']" => "' + dictionary[key] + '"}\n' for key in dictionary]
 
 # get names of files in python 3.6
 data_file_name = input("Data File Name: ")
 conf_file_name = input("Configurations File Name: ")
 
-# get index name
-db_name = input("Insert Desirable Index/DB name: ")
-
 # get names of files in python 2.7
 # data_file_name = raw_input("Data File Name: ")
 # conf_file_name = raw_input("Configurations File Name: ")
+
+# get index name
+db_name = input("Insert Desirable Index/DB name: ")
 
 # get column title names
 with open(data_file_name, "r") as in_data:
@@ -64,17 +59,18 @@ with open(data_file_name, "r") as in_data:
 
 # check if file exists
 if in_data.mode == 'r':
-    table_column_titles_array = re.sub("[\n\r]", "",file_lines[0]).split(',')
-    data_sample =  re.sub("[\n\r]", "",file_lines[1]).split(',')
+    table_column_titles_array = re.sub("[\n\r]", '',file_lines[0]).split(',')
+    data_sample =  re.sub("[\n\r]", '',file_lines[1]).split(',')
 
-
-print(''.join(writeConversion(dict(zip(table_column_titles_array, map(getType, data_sample))))))
+# format the conversion lines
+conversion_lines = 'mutate{\n' + ''.join(writeConversion(dict(zip(table_column_titles_array, map(getType, data_sample))))) + '\n\t}'
 
 # write to output file
-print((re.sub("index =>.*", 'index => "' + db_name + '"'
-, re.sub("columns =>.*", "columns => " + '["'+'", "'.join(table_column_titles_array)+'"]'
-, conf_temp))))
+with open(conf_file_name, 'w+') as fout:
+    fout.writelines(re.sub("#mutate", conversion_lines, re.sub("index =>.*", 'index => "' + db_name + '"'
+    , re.sub("columns =>.*", "columns => " + '["'+'", "'.join(table_column_titles_array)+'"]'
+    , conf_temp))))
 
 
-# os.system(conf_file_name)
-# print("Done!")
+print("Opening file...")
+os.system('open ' + conf_file_name)
