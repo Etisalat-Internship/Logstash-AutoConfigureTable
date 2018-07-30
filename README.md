@@ -2,7 +2,7 @@
 >This is a simple script that auto configures a table column title from a csv file.
 
 ## Pre-conditions
-1. data needs to be in a csv file `.csv`
+1. data needs to be in csv format (`.txt.` or `.csv`)
 2. output file must be a `.conf` file
 3. the column names need to be all be written on the first line and seperated by commas
 4. The `.conf` file needs to have an empty columns variable (use the example below as template, if needed)
@@ -14,8 +14,8 @@ filter {
         #match => ...etc...
     }
     csv {
-        columns:
-        seperator: ","
+        columns =>
+        seperator => ","
     }
 }
 ```

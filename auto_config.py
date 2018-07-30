@@ -25,7 +25,7 @@ with open(conf_file_name, "r") as in_data:
 
 # write to output file
 with open(conf_file_name, 'w+') as fout:
-    fout.writelines(re.sub("columns:"
-    , "columns: " + '"'+'", "'.join(table_column_titles_array)+'"'
+    fout.writelines(re.sub("columns =>.*"
+    , "columns => " + '"'+'", "'.join(table_column_titles_array)+'"'
     , config_contents)
 )
