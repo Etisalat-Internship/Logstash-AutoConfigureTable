@@ -14,8 +14,10 @@ filter {
 	    columns => ["sepal length", "sepal width", "petal length", "petal width", "clas"]
 	    separator => ","
 	}
+
+    gsub
 	
-	mutate
+	<mutate>
 }
 output {
 	stdout { codec => rubydebug }
@@ -41,7 +43,7 @@ def getType(s):
     return "string"
 
 def writeConversion(dictionary):
-    return ['\t\tconvert => {"[{}]" => "{}"}\n'.format(key, dictionary[key]) for key in dictionary]
+    return ['\t\tconvert => {{"[{}]" => "{}"}}\n'.format(key, dictionary[key]) for key in dictionary]
 
 def rmSpecChar(clmns, spec_str):
     return ['\t\t"{}", "{}", ""'.format(title, spec_str) for title in clmns]
@@ -73,17 +75,20 @@ title_type_pair = dict(zip(table_column_titles_array, map(getType, data_sample))
 # (in general: where the values cannot be understood by logstash, 
 # like the example of the windows tool logman)
 # note: from keys swaps all values with the given data
-string_mutate_lines = 'mutate{\n{}\n\t}'.format(''.join(writeConversion(dict.fromkeys(title_type_pair, "string"))))
+string_mutate_lines = 'mutate{{\n{}\n\t}}'.format(''.join(writeConversion(dict.fromkeys(title_type_pair, "string"))))
 
+# filter out undesirable characters
+gsub = 'mutate{{\n\t\tgsub => [\n\t{}\n\t\t]\n\t}}'.format(',\n\t'.join(rmSpecChar(table_column_titles_array, '\\"')))
 
 # format the conversion lines
-conversion_lines = 'mutate{\n{}\n\t}'.format(''.join(writeConversion(title_type_pair)))
+conversion_lines = 'mutate{{\n{}\n\t}}'.format(''.join(writeConversion(title_type_pair)))
 
 # write to output file
 with open(conf_file_name, 'w+') as fout:
-    fout.writelines(re.sub("mutate", string_mutate_lines + '\n' + conversion_lines, re.sub("index =>.*"
+    fout.writelines(re.sub("<mutate>", string_mutate_lines + '\n\t' + conversion_lines, re.sub("index =>.*"
     , 'index => "{}"'.format(db_name), re.sub("columns =>.*"
-    , 'columns => ["'+'", "'.join(table_column_titles_array)+'"]', conf_temp))))
+    , 'columns => ["'+'", "'.join(table_column_titles_array)+'"]', re.sub("gsub"
+    , gsub, conf_temp)))))
 
 
 print("Done!")
