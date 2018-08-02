@@ -60,7 +60,7 @@ with open(data_file_name, "r") as in_data:
 
 # check if file exists
 if in_data.mode == 'r':
-    table_column_titles_array = re.sub("[\n\r\"]", '', re.sub(r"\\\\TARDIS\\", '', file_lines[0])).split(',')
+    table_column_titles_array = re.sub(r"[\n\r\"\/\\]", '', re.sub(r"\\\\TARDIS\\", '', file_lines[0])).split(',')
     data_sample =  re.sub("[\n\r\"]", '', file_lines[2]).split(',')
 
 
@@ -69,10 +69,10 @@ d = dict(zip(table_column_titles_array, map(getType, data_sample)))
 # swap all the values to string in case the text file is formated in binary 
 # (in general: where the values cannot be understood by logstash, 
 # like the example of the windows tool logman)
-string_mutate_lines = 'mutate{\n' + ''.join(writeConversion(d)) + '\n\t}'
+conversion_lines = 'mutate{\n' + ''.join(writeConversion(d)) + '\n\t}'
 
 # format the conversion lines
-conversion_lines = 'mutate{\n' + ''.join(writeConversion(dict.fromkeys(d, "string"))) + '\n\t}'
+string_mutate_lines = 'mutate{\n' + ''.join(writeConversion(dict.fromkeys(d, "string"))) + '\n\t}'
 
 # write to output file
 with open(conf_file_name, 'w+') as fout:
