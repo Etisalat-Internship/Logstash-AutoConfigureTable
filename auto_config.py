@@ -33,6 +33,7 @@ def isfloat(s):
         return True
     except ValueError:
         return False
+
 # function to return the required type
 def getType(s):
     if isfloat(s):
@@ -59,8 +60,9 @@ with open(data_file_name, "r") as in_data:
 
 # check if file exists
 if in_data.mode == 'r':
-    table_column_titles_array = re.sub("[\n\r]", '',file_lines[0]).split(',')
-    data_sample =  re.sub("[\n\r]", '',file_lines[1]).split(',')
+    table_column_titles_array = re.sub("[\n\r\"]", '', re.sub(r"\\\\TARDIS\\", '', file_lines[0])).split(',')
+    data_sample =  re.sub("[\n\r\"]", '', file_lines[2]).split(',')
+
 
 # format the conversion lines
 conversion_lines = 'mutate{\n' + ''.join(writeConversion(dict(zip(table_column_titles_array, map(getType, data_sample))))) + '\n\t}'
@@ -72,5 +74,4 @@ with open(conf_file_name, 'w+') as fout:
     , conf_temp))))
 
 
-print("Opening file...")
-os.system('open ' + conf_file_name)
+print("Done!")
