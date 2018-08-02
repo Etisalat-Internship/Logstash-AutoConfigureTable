@@ -33,6 +33,7 @@ def isfloat(s):
         return True
     except ValueError:
         return False
+
 # function to return the required type
 def getType(s):
     if isfloat(s):
@@ -59,18 +60,25 @@ with open(data_file_name, "r") as in_data:
 
 # check if file exists
 if in_data.mode == 'r':
-    table_column_titles_array = re.sub("[\n\r]", '',file_lines[0]).split(',')
-    data_sample =  re.sub("[\n\r]", '',file_lines[1]).split(',')
+    table_column_titles_array = re.sub("[\n\r\"]", '', re.sub(r"\\\\TARDIS\\", '', file_lines[0])).split(',')
+    data_sample =  re.sub("[\n\r\"]", '', file_lines[2]).split(',')
+
+
+d = dict(zip(table_column_titles_array, map(getType, data_sample)))
+
+# swap all the values to string in case the text file is formated in binary 
+# (in general: where the values cannot be understood by logstash, 
+# like the example of the windows tool logman)
+string_mutate_lines = 'mutate{\n' + ''.join(writeConversion(d)) + '\n\t}'
 
 # format the conversion lines
-conversion_lines = 'mutate{\n' + ''.join(writeConversion(dict(zip(table_column_titles_array, map(getType, data_sample))))) + '\n\t}'
+conversion_lines = 'mutate{\n' + ''.join(writeConversion(dict.fromkeys(d, "string"))) + '\n\t}'
 
 # write to output file
 with open(conf_file_name, 'w+') as fout:
-    fout.writelines(re.sub("#mutate", conversion_lines, re.sub("index =>.*", 'index => "' + db_name + '"'
-    , re.sub("columns =>.*", "columns => " + '["'+'", "'.join(table_column_titles_array)+'"]'
-    , conf_temp))))
+    fout.writelines(re.sub("#mutate", string_mutate_lines + '\n' + conversion_lines, re.sub("index =>.*"
+    , 'index => "' + db_name + '"', re.sub("columns =>.*"
+    , "columns => " + '["'+'", "'.join(table_column_titles_array)+'"]', conf_temp))))
 
 
-print("Opening file...")
-os.system('open ' + conf_file_name)
+print("Done!")

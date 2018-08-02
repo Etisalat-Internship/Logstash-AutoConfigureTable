@@ -5,9 +5,9 @@
 1. data needs to be in csv format (`.txt.` or `.csv`)
 2. output file must be a `.conf` file
 3. the column names need to be all be written on the first line and seperated by commas
-4. The `.conf` file will look similar to the following snippit
+4. The `.conf` file will look similar to the following snippet
 
-Template:
+Example:
 ```
 filter {
     grok {
