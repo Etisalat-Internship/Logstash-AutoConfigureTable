@@ -15,7 +15,7 @@ filter {
 	    separator => ","
 	}
 	
-	#mutate
+	mutate
 }
 output {
 	stdout { codec => rubydebug }
@@ -38,10 +38,13 @@ def isfloat(s):
 def getType(s):
     if isfloat(s):
         return "float"
-    return "text"
+    return "string"
 
 def writeConversion(dictionary):
-    return ['\t\tconvert => {"[' + key + ']" => "' + dictionary[key] + '"}\n' for key in dictionary]
+    return ['\t\tconvert => {"[{}]" => "{}"}\n'.format(key, dictionary[key]) for key in dictionary]
+
+def rmSpecChar(clmns, spec_str):
+    return ['\t\t"{}", "{}", ""'.format(title, spec_str) for title in clmns]
 
 # get names of files in python 3.6
 data_file_name = input("Data File Name: ")
@@ -70,17 +73,17 @@ title_type_pair = dict(zip(table_column_titles_array, map(getType, data_sample))
 # (in general: where the values cannot be understood by logstash, 
 # like the example of the windows tool logman)
 # note: from keys swaps all values with the given data
-string_mutate_lines = 'mutate{\n' + ''.join(writeConversion(dict.fromkeys(title_type_pair, "string"))) + '\n\t}'
+string_mutate_lines = 'mutate{\n{}\n\t}'.format(''.join(writeConversion(dict.fromkeys(title_type_pair, "string"))))
 
 
 # format the conversion lines
-conversion_lines = 'mutate{\n' + ''.join(writeConversion(title_type_pair)) + '\n\t}'
+conversion_lines = 'mutate{\n{}\n\t}'.format(''.join(writeConversion(title_type_pair)))
 
 # write to output file
 with open(conf_file_name, 'w+') as fout:
-    fout.writelines(re.sub("#mutate", string_mutate_lines + '\n' + conversion_lines, re.sub("index =>.*"
-    , 'index => "' + db_name + '"', re.sub("columns =>.*"
-    , "columns => " + '["'+'", "'.join(table_column_titles_array)+'"]', conf_temp))))
+    fout.writelines(re.sub("mutate", string_mutate_lines + '\n' + conversion_lines, re.sub("index =>.*"
+    , 'index => "{}"'.format(db_name), re.sub("columns =>.*"
+    , 'columns => ["'+'", "'.join(table_column_titles_array)+'"]', conf_temp))))
 
 
 print("Done!")
