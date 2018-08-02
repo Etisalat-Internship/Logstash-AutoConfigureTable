@@ -1,13 +1,13 @@
 # Logstash-AutoConfigureTable
->This is a simple script that auto configures a table column title from a csv file.
+>This is a simple script that auto-creates a configuration file for logstash from a csv data file.
 
 ## Pre-conditions
 1. data needs to be in csv format (`.txt.` or `.csv`)
 2. output file must be a `.conf` file
 3. the column names need to be all be written on the first line and seperated by commas
-4. The `.conf` file needs to have an empty columns variable (use the example below as template, if needed)
+4. The `.conf` file will look similar to the following snippet
 
-Template:
+Example:
 ```
 filter {
     grok {
@@ -20,7 +20,7 @@ filter {
 }
 ```
 
->Tip: `bcancer.csv` and `2 - Second Pipeline.conf` files are merely provided to serve as templates or for testing, they carry no particular significance for the code to run.
+>Tip: `bcancer.csv` file is merely provided to serve as templates or for testing, it carries no particular significance for the code to run.
 
 
 5. python 2.7 or python 3.6 (or higher) needs to be installed
@@ -35,7 +35,9 @@ filter {
     
     * for Python 2.7: `python auto_config.py`
     * for Python 3.6 (or higher): `python3 auto_config.py`
-5. when prompted to enter file names, do so with their file extensions
+5. when prompted to enter file names, do so with their file extensions (and path if needed)
+6. finally enter the database name which will be used as index when inputed into Elasticsearch
+
 
 ## Result
->After running the code, the output file (specifically, the filter's csv's collum variable) will be pupulated by an array of strings including the column names.
+>After running the code, an output file will be created by an array of strings including the column names, their data types, as well as the index.
