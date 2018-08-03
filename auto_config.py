@@ -65,7 +65,7 @@ with open(data_file_name, "r") as in_data:
 
 # check if file exists
 if in_data.mode == 'r':
-    table_column_titles_array = re.sub(r"[\n\r\"\/\\]?(\\\\TARDIS\\)?", '', file_lines[0]).split(',')
+    table_column_titles_array = re.sub(r"[\n\r\"\/\\]?(\\\\.*?\\)?", '', file_lines[0]).split(',') # unwanted characters are removed while parsing
     data_sample =  re.sub("[\n\r\"]", '', file_lines[2]).split(',')
 
 # create a dictionary of title and data type pairs
